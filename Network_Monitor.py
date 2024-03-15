@@ -1,4 +1,10 @@
+import os
 import time
+
+def list_network_interfaces():
+    # Get a list of available network interfaces
+    interfaces = os.listdir('/sys/class/net')
+    return interfaces
 
 def get_bytes(interface):
     with open('/proc/net/dev', 'r') as f:
@@ -9,8 +15,26 @@ def get_bytes(interface):
         raise ValueError(f"Network interface '{interface}' not found.")
 
 def main():
-    interface = "eth0"  # Change this to your desired network interface
-    print("Monitoring network bandwidth...")
+    # List available network interfaces
+    interfaces = list_network_interfaces()
+    print("Available network interfaces:")
+    for i, iface in enumerate(interfaces):
+        print(f"{i + 1}. {iface}")
+    
+    # Prompt user to select an interface
+    while True:
+        try:
+            choice = int(input("Enter the number corresponding to the desired interface: "))
+            if 1 <= choice <= len(interfaces):
+                interface = interfaces[choice - 1]
+                break
+            else:
+                print("Invalid choice. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+    
+    print(f"Monitoring network bandwidth for interface {interface}...")
+    
     try:
         last_rx, last_tx = get_bytes(interface)
     except ValueError as e:
