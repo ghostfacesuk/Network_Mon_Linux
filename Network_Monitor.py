@@ -6,14 +6,23 @@ def get_bytes(interface):
             if interface in line:
                 data = line.split(':')
                 return int(data[1].split()[0]), int(data[1].split()[8])
+        raise ValueError(f"Network interface '{interface}' not found.")
 
 def main():
     interface = "eth0"  # Change this to your desired network interface
     print("Monitoring network bandwidth...")
-    last_rx, last_tx = get_bytes(interface)
+    try:
+        last_rx, last_tx = get_bytes(interface)
+    except ValueError as e:
+        print(f"Error: {e}")
+        return
     
     while True:
-        rx, tx = get_bytes(interface)
+        try:
+            rx, tx = get_bytes(interface)
+        except ValueError as e:
+            print(f"Error: {e}")
+            break
         
         rx_speed = (rx - last_rx) / (1024.0 * 1024.0)  # Received bandwidth in MB/s
         tx_speed = (tx - last_tx) / (1024.0 * 1024.0)  # Sent bandwidth in MB/s
